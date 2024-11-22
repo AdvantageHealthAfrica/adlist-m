@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
 import * as fs from 'fs';
 import * as csvParser from 'csv-parser';
-import { CreateFormularyDto } from '../dtos/create-formulary.dto';
-import { UpdateFormularyDto } from '../dtos/update-formulary.dto';
+import { CreateFormularyDto } from '../../dtos/create-formulary.dto';
+import { UpdateFormularyDto } from '../../dtos/update-formulary.dto';
 import { BusinessUnit } from '../entities/business.unit.entity';
 import { Formulary } from '../entities/formularies.entity';
 

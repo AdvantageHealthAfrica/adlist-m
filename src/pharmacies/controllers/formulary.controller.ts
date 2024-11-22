@@ -14,8 +14,8 @@ import {
   import { FileInterceptor } from '@nestjs/platform-express';
   import { diskStorage } from 'multer';
   import * as path from 'path';
-  import { CreateFormularyDto } from '../dtos/create-formulary.dto';
-  import { UpdateFormularyDto } from '../dtos/update-formulary.dto';
+  import { CreateFormularyDto } from '../../dtos/create-formulary.dto';
+  import { UpdateFormularyDto } from '../../dtos/update-formulary.dto';
   import { Formulary } from '../entities/formularies.entity';
   import { FormularyService } from '../services/formulary.service';
   import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiConsumes, ApiQuery } from '@nestjs/swagger';

@@ -9,8 +9,8 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { PharmacyProductDosageForm } from '../../enums/pharmacy.product.dosage.form';
-import { QuantityTypes } from '../../enums/product.quantity.types';
+import { PharmacyProductDosageForm } from '../enums/pharmacy.product.dosage.form';
+import { QuantityTypes } from '../enums/product.quantity.types';
 
 export class PharmacyProductDto {
   @ApiPropertyOptional({ description: 'NAFDAC number of the product', example: '12345-67890' })

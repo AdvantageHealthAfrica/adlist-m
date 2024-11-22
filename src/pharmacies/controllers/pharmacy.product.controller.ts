@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Param, Put, Delete, Query, HttpException, 
 import { ApiTags, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { PharmacyProductService } from '../services/pharmacy.product.service';
 import { PharmacyProduct } from '../entities/pharamcy.product.entity';
-import { PharmacyProductDto } from '../dtos/pharmacy.product.dto';
+import { PharmacyProductDto } from '../../dtos/pharmacy.product.dto';
 
 
 @ApiTags('Pharmacy products')
