@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Param, Put, Delete, Query, HttpException, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { PharmacyProductService } from '../services/pharmacy.product.service';
-import { PharmacyProduct } from '../entities/pharamcy.product.entity';
+import { PharmacyProduct } from '../entities/pharmacy.product.entity';
 import { PharmacyProductDto } from '../../dtos/pharmacy.product.dto';
 
 
