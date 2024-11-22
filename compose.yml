@@ -1,0 +1,60 @@
+version: '3'
+
+services:
+  
+  web:
+    container_name: stock_api
+    build: 
+      context: .
+      target: development
+    ports:
+      - 3000:3000
+    command: npm run start:dev
+    develop:
+      watch:
+        # synchronize code changes in directory to docker container's code
+        - action: sync
+          path: .
+          target: /code
+
+        # rebuild the docker image with each change in the package.json file
+        - action: rebuild
+          path: package.json
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+  
+
+  postgres:
+    container_name: api_db
+    image: postgres:12-alpine
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      # POSTGRES_HOST: ${DB_HOST}
+      # POSTGRES_PORT: ${DB_PORT}
+    restart: always
+    ports:
+      - 5432:5432
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  
+
+  ## run on browser with http://localhost:8888/
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    ports:
+      - "8888:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
+volumes:
+  pgdata:
+  pgadmin-data:
