@@ -11,6 +11,7 @@ import { SearchModule } from './search/search.module';
 import { HealthModule } from './health/health.module';
 import { CaslModule } from './casl/casl.module';
 import { BusinessUnitsModule } from './business-units/business-units.module';
+import { FormulariesModule } from './formularies/formularies.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { BusinessUnitsModule } from './business-units/business-units.module';
     HealthModule,
     CaslModule,
     BusinessUnitsModule,
+    FormulariesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
