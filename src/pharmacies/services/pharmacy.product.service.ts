@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { PharmacyProduct } from '../entities/pharamcy.product.entity';
+import { PharmacyProduct } from '../entities/pharmacy.product.entity';
 import { ProductBusinessUnit } from '../entities/product.business.unit';
 import { PharmacyProductDto } from '../../dtos/pharmacy.product.dto';
 

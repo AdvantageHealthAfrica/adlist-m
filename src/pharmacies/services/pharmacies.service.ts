@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Pharmacy } from '../entities/pharmacy.entity';
 import { User } from '../../users/user.entity';
 import { UniversalListService } from '../../universal-list/universal-list.service';
-import { PharmacyProduct } from '../entities/pharamcy.product.entity';
+import { PharmacyProduct } from '../entities/pharmacy.product.entity';
 import { OverallInventoryUpdateTime } from '../entities/overall.pharmacy.product.update.time.entity';
 import { PharmacyProductDosageForm } from '../../enums/pharmacy.product.dosage.form';
 import { TimeLapses } from '../../enums/time.lapses';

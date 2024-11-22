@@ -3,7 +3,7 @@ import { PharmaciesService } from './services/pharmacies.service';
 import { Pharmacy } from './entities/pharmacy.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UniversalListModule } from '../universal-list/universal-list.module';
-import { PharmacyProduct } from './entities/pharamcy.product.entity';
+import { PharmacyProduct } from './entities/pharmacy.product.entity';
 import { CaslModule } from '../casl/casl.module';
 import { OverallInventoryUpdateTime } from './entities/overall.pharmacy.product.update.time.entity';
 import { BusinessUnit } from './entities/business.unit.entity';
