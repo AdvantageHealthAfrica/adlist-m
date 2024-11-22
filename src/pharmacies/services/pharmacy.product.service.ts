@@ -129,7 +129,7 @@ export class PharmacyProductService {
 
 
    // Aggregate total stock quantity by business unit
-   async aggregateTotalStockByBusinessUnit(): Promise<any[]> {
+  async aggregateTotalStockByBusinessUnit(): Promise<any[]> {
     try {
       const result = await this.pharmacyProductRepository
         .createQueryBuilder('product')

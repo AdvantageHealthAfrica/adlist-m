@@ -8,7 +8,7 @@ import { CaslModule } from '../casl/casl.module';
 import { OverallInventoryUpdateTime } from './entities/overall.pharmacy.product.update.time.entity';
 import { BusinessUnit } from './entities/business.unit.entity';
 import { ProductBusinessUnit } from './entities/product.business.unit';
-import { StockCount } from './entities/stock.counts.entity';
+// import { StockCount } from '../entities/stock.counts.entity';
 import { PharmaciesController } from './controllers/pharmacies.controller';
 import { FormularyService } from './services/formulary.service';
 import { FormularyController } from './controllers/formulary.controller';
@@ -24,7 +24,7 @@ import { PharmacyProductController } from './controllers/pharmacy.product.contro
       Pharmacy, 
       PharmacyProduct, 
       OverallInventoryUpdateTime, 
-      StockCount,
+      // StockCount,
       BusinessUnit,
       Formulary,
       ProductBusinessUnit,
