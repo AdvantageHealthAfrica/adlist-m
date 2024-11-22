@@ -10,6 +10,7 @@ import { UniversalListModule } from './universal-list/universal-list.module';
 import { SearchModule } from './search/search.module';
 import { HealthModule } from './health/health.module';
 import { CaslModule } from './casl/casl.module';
+import { BusinessUnitsModule } from './business-units/business-units.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { CaslModule } from './casl/casl.module';
     SearchModule,
     HealthModule,
     CaslModule,
+    BusinessUnitsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
