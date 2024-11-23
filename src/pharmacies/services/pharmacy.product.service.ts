@@ -2,8 +2,10 @@ import { Injectable, InternalServerErrorException, Logger, NotFoundException } f
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PharmacyProduct } from '../entities/pharmacy.product.entity';
-import { ProductBusinessUnit } from '../entities/product.business.unit';
+import { BusinessUnitProduct } from '../../business-units/entities/business.unit.product.entity';
 import { PharmacyProductDto } from '../../dtos/pharmacy.product.dto';
+import { BusinessUnitsService } from '../../business-units/services/business-units.service';
+import { BusinessUnitProductsService } from '../../business-units/services/business-unit-products.service';
 
 @Injectable()
 export class PharmacyProductService {
@@ -12,8 +14,8 @@ export class PharmacyProductService {
   constructor(
     @InjectRepository(PharmacyProduct)
     private readonly pharmacyProductRepository: Repository<PharmacyProduct>,
-    @InjectRepository(ProductBusinessUnit)
-    private readonly productBusinessUnitRepository: Repository<ProductBusinessUnit>,
+    private businessUnitsService: BusinessUnitsService,
+    private businessUnitProductsService: BusinessUnitProductsService,
   ) {}
 
   async create(pharmacyProductDto: PharmacyProductDto): Promise<PharmacyProduct> {
@@ -25,16 +27,10 @@ export class PharmacyProductService {
       const savedProduct = await this.pharmacyProductRepository.save(pharmacyProduct);
 
       
-
+      const businessUnit = await this.businessUnitsService.findOne(business_unit_id)
       // If business unit ID and quantity are provided, link the product to the business unit
       if (business_unit_id && quantity) {
-        const productBusinessUnit = this.productBusinessUnitRepository.create({
-          product: savedProduct,
-          businessUnit: { bu_id: business_unit_id },
-          quantity,
-        });
-
-        await this.productBusinessUnitRepository.save(productBusinessUnit);
+        await this.businessUnitProductsService.create(savedProduct, businessUnit, quantity)
       }
 
       return savedProduct;
@@ -67,26 +63,19 @@ export class PharmacyProductService {
 
     const { businessUnitId, quantity, ...productData } = pharmacyProductDto;
 
+    const businessUnit = await this.businessUnitsService.findOne(businessUnitId)
+
     Object.assign(pharmacyProduct, productData);
     const updatedProduct = await this.pharmacyProductRepository.save(pharmacyProduct);
 
     if (businessUnitId && quantity !== undefined) {
-      let productBusinessUnit = await this.productBusinessUnitRepository.findOne({
-        where: { product: { id }, businessUnit: { bu_id: businessUnitId } },
-        relations: ['product', 'business_unit_id'],
-      });
+      let businessUnitProduct = await this.businessUnitProductsService.findOne(id, businessUnitId);
 
-      if (productBusinessUnit) {
-        productBusinessUnit.quantity = quantity;
+      if (businessUnitProduct) {
+        await this.businessUnitProductsService.updateBusinessUnitProductQuantity(id, businessUnitId, quantity);
       } else {
-        productBusinessUnit = this.productBusinessUnitRepository.create({
-          product: updatedProduct,
-          businessUnit: { bu_id: businessUnitId },
-          quantity,
-        });
+        await this.businessUnitProductsService.create(updatedProduct, businessUnit, quantity);
       }
-
-      await this.productBusinessUnitRepository.save(productBusinessUnit);
     }
 
     return updatedProduct;
