@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Param, Put, Delete, Query } from '@nestjs/common';
 import { ApiTags, ApiQuery, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { BusinessUnitsService } from './business-units.service';
+import { BusinessUnitsService } from './services/business-units.service';
 import { BusinessUnitDto } from '../dtos/business.unit.dto';
 import { CreateBusinessUnitDto } from '../dtos/create.business.unit.dto';
 import { UpdateBusinessUnitDto } from '../dtos/update.business.unit.dto';
