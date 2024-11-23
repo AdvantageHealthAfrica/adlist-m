@@ -6,6 +6,10 @@ import { BusinessUnitProduct } from '../../business-units/entities/business.unit
 import { PharmacyProductDto } from '../../dtos/pharmacy.product.dto';
 import { BusinessUnitsService } from '../../business-units/services/business-units.service';
 import { BusinessUnitProductsService } from '../../business-units/services/business-unit-products.service';
+import { User } from '../../users/user.entity';
+import { Role } from '../../enums/role.enum';
+import { PharmaciesService } from './pharmacies.service';
+import { DataSource } from 'typeorm';
 
 @Injectable()
 export class PharmacyProductService {
@@ -16,6 +20,8 @@ export class PharmacyProductService {
     private readonly pharmacyProductRepository: Repository<PharmacyProduct>,
     private businessUnitsService: BusinessUnitsService,
     private businessUnitProductsService: BusinessUnitProductsService,
+    private pharmaciesService: PharmaciesService,
+    private dataSource: DataSource,
   ) {}
 
   async create(pharmacyProductDto: PharmacyProductDto): Promise<PharmacyProduct> {
@@ -26,7 +32,6 @@ export class PharmacyProductService {
       const pharmacyProduct = this.pharmacyProductRepository.create(productData);
       const savedProduct = await this.pharmacyProductRepository.save(pharmacyProduct);
 
-      
       const businessUnit = await this.businessUnitsService.findOne(business_unit_id)
       // If business unit ID and quantity are provided, link the product to the business unit
       if (business_unit_id && quantity) {
@@ -263,6 +268,26 @@ export class PharmacyProductService {
       this.logger.error('Error aggregating total quantity and selling price by business unit', error);
       throw error;
     }
+  }
+
+
+  async searchPharmacyProductByProductName(pharmacyId: number, searchQuery: string, user: User) {
+    const pharmacy = await this.pharmaciesService.getPharmacy(user, pharmacyId)
+    const pharmacy_id = pharmacy.id
+    let searchResults = await this.dataSource
+      .createQueryBuilder()
+      .select("pharmacy_product")
+      .from(PharmacyProduct, "pharmacy_product")
+      .where('pharmacy_product.pharmacyId = :pharmacyId', { pharmacy_id })
+      .andWhere("pharmacy_product.product_name ILIKE :searchQuery", { searchQuery: `%${searchQuery}%` })
+      .getMany();
+    
+      if (searchResults.length) {
+        return searchResults
+      }
+      return {
+        "message": "No results found."
+      }
   }
 
 }

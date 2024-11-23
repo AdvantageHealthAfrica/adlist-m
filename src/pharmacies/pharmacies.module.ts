@@ -12,6 +12,7 @@ import { BusinessUnitsModule } from '../business-units/business-units.module';
 // import { StockCount } from '../entities/stock.counts.entity';
 import { PharmacyProductService } from './services/pharmacy.product.service';
 import { PharmacyProductController } from './controllers/pharmacy.product.controller';
+import { PharmaciesController } from './controllers/pharmacies.controller';
 
 @Module({
   imports: [
@@ -27,6 +28,6 @@ import { PharmacyProductController } from './controllers/pharmacy.product.contro
   ],
   providers: [PharmaciesService, PharmacyProductService,],
   exports: [PharmaciesService,  PharmacyProductService,],
-  controllers: [ PharmacyProductController],
+  controllers: [ PharmacyProductController, PharmaciesController],
 })
 export class PharmaciesModule {}

@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, Query, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, Query, HttpException, HttpStatus, UseGuards, Request } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { PharmacyProductService } from '../services/pharmacy.product.service';
 import { PharmacyProduct } from '../entities/pharmacy.product.entity';
 import { PharmacyProductDto } from '../../dtos/pharmacy.product.dto';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 
 @ApiTags('Pharmacy products')
@@ -207,5 +208,13 @@ export class PharmacyProductController {
     } catch (error) {
       throw new HttpException('Failed to aggregate total quantity and selling price', HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+
+  @UseGuards(JwtAuthGuard)
+  @Get('search/:pharmacy_id')
+  async searchPharmacyProductByProductName(@Param('pharmacy_id') pharmacyId: number, @Query('product_name') product_name: string, @Request() request) {
+    const user = request.user
+    return await this.pharmacyProductService.searchPharmacyProductByProductName(pharmacyId, product_name, user)
   }
 }
