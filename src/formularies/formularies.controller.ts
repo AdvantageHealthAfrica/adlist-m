@@ -20,6 +20,7 @@ import { Formulary } from './formulary.entity';
 import { FormulariesService } from './formularies.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiConsumes, ApiQuery } from '@nestjs/swagger';
 
+@ApiTags('Formularies')
 @Controller('formularies')
 export class FormulariesController {
   constructor(private readonly formulariesService: FormulariesService) {}

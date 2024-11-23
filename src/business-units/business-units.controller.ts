@@ -5,7 +5,7 @@ import { BusinessUnitDto } from '../dtos/business.unit.dto';
 import { CreateBusinessUnitDto } from '../dtos/create.business.unit.dto';
 import { UpdateBusinessUnitDto } from '../dtos/update.business.unit.dto';
 
-@ApiTags('business-units')
+@ApiTags('Business-units')
 @Controller('business-units')
 export class BusinessUnitsController {
   constructor(private readonly businessUnitsService: BusinessUnitsService) {}
