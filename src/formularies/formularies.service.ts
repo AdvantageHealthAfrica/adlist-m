@@ -5,8 +5,8 @@ import * as fs from 'fs';
 import * as csvParser from 'csv-parser';
 import { CreateFormularyDto } from '../dtos/create-formulary.dto';
 import { UpdateFormularyDto } from '../dtos/update-formulary.dto';
-import { BusinessUnit } from '../business-units/entities/business.unit.entity';
 import { Formulary } from './formulary.entity';
+import { BusinessUnitsService } from 'src/business-units/services/business-units.service';
 
 @Injectable()
 export class FormulariesService {
@@ -15,8 +15,7 @@ export class FormulariesService {
   constructor(
     @InjectRepository(Formulary)
     private readonly formularyRepository: Repository<Formulary>,
-    @InjectRepository(BusinessUnit)
-    private readonly businessUnitRepository: Repository<BusinessUnit>,
+    private businessUnitsService: BusinessUnitsService
   ) {}
 
   // Create a new formulary
@@ -24,9 +23,7 @@ export class FormulariesService {
     const { business_unit_id } = createFormularyDto;
 
     try {
-      const businessUnit = await this.businessUnitRepository.findOne({
-        where: { bu_id: business_unit_id },
-      });
+      const businessUnit = await this.businessUnitsService.findOne(business_unit_id)
 
       if (!businessUnit) {
         this.logger.error(`Business unit with ID ${business_unit_id} not found`);
@@ -78,9 +75,8 @@ export class FormulariesService {
   }
 
   async findByBusinessUnitId(businessUnitId: string): Promise<Formulary[]> {
-    const businessUnit = await this.businessUnitRepository.findOne({
-      where: { bu_id: businessUnitId },
-    });
+    const businessUnit = await this.businessUnitsService.findOne(businessUnitId)
+
 
     if (!businessUnit) {
       throw new NotFoundException(`Business unit with ID ${businessUnitId} not found`);
@@ -109,9 +105,7 @@ export class FormulariesService {
       const { business_unit_id } = updateFormularyDto;
 
       if (business_unit_id) {
-        const businessUnit = await this.businessUnitRepository.findOne({
-          where: { bu_id: business_unit_id },
-        });
+      const businessUnit = await this.businessUnitsService.findOne(business_unit_id)
 
         if (!businessUnit) {
           this.logger.error(`Business unit with ID ${business_unit_id} not found`);
