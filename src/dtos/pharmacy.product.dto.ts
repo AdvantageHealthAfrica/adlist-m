@@ -92,8 +92,13 @@ export class PharmacyProductDto {
   @Type(() => Date)
   expiry_date?: Date;
 
-  @ApiProperty({ description: 'Business Unit ID', example: 'BU12345' })
-  @IsNotEmpty()
+  @ApiPropertyOptional({ description: 'The pharmacy id', example: 1 })
+  @IsOptional()
+  @IsNumber()
+  pharmacy_id: number
+
+  @ApiPropertyOptional({ description: 'Business Unit ID', example: 'BU12345' })
+  @IsOptional()
   @IsString()
   business_unit_id?: string;
 

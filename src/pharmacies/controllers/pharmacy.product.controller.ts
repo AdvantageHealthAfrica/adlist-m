@@ -4,6 +4,8 @@ import { PharmacyProductService } from '../services/pharmacy.product.service';
 import { PharmacyProduct } from '../entities/pharmacy.product.entity';
 import { PharmacyProductDto } from '../../dtos/pharmacy.product.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/guards/roles.guards';
+import { Role } from 'src/enums/role.enum';
 
 
 @ApiTags('Pharmacy products')
@@ -11,10 +13,31 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 export class PharmacyProductController {
   constructor(private readonly pharmacyProductService: PharmacyProductService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   @ApiOperation({ summary: 'Create a new pharmacy product' })
-  async create(@Body() pharmacyProductDto: PharmacyProductDto): Promise<PharmacyProduct> {
-    return this.pharmacyProductService.create(pharmacyProductDto);
+  async create(@Body() body: PharmacyProductDto, @Request() request): Promise<PharmacyProduct> {
+    const user = request.user
+    return this.pharmacyProductService.create(
+      user,
+      body.product_name,
+      body.manufacturer,
+      body.dosage_form,
+      body.exists_in_uni_list,
+      body.quantity_type,
+      body.nafdac_number,
+      body.product_code,
+      body.drug_name,
+      body.strength,
+      body.unit,
+      body.quantity,
+      body.selling_price,
+      body.cost_price,
+      body.expiry_date,
+      body.pharmacy_id,
+      body.business_unit_id,
+      body.formulary_id
+    );
   }
 
   @Get()

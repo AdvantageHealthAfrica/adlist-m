@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger, NotFoundException, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PharmacyProduct } from '../entities/pharmacy.product.entity';
@@ -10,6 +10,11 @@ import { User } from '../../users/user.entity';
 import { Role } from '../../enums/role.enum';
 import { PharmaciesService } from './pharmacies.service';
 import { DataSource } from 'typeorm';
+import { CaslAbilityFactory } from '../../casl/casl-ability.factory/casl-ability.factory';
+import { PharmacyProductDosageForm } from '../../enums/pharmacy.product.dosage.form';
+import { QuantityTypes } from '../../enums/product.quantity.types';
+import { Pharmacy } from '../entities/pharmacy.entity';
+import { Action } from '../../enums/actions.enums';
 
 @Injectable()
 export class PharmacyProductService {
@@ -22,19 +27,66 @@ export class PharmacyProductService {
     private businessUnitProductsService: BusinessUnitProductsService,
     private pharmaciesService: PharmaciesService,
     private dataSource: DataSource,
+    private caslAbilityFactory: CaslAbilityFactory
   ) {}
 
-  async create(pharmacyProductDto: PharmacyProductDto): Promise<PharmacyProduct> {
-    const { business_unit_id, quantity, ...productData } = pharmacyProductDto;
+  async create(
+    user: User,
+    product_name: string,
+    manufacturer: string,
+    dosage_form: PharmacyProductDosageForm,
+    exists_in_uni_list: boolean,
+    quantity_type: QuantityTypes,
+    nafdac_number?: string,
+    product_code?: string,
+    drug_name?: string,
+    strength?: string,
+    unit?: string,
+    quantity?: number,
+    selling_price?: number,
+    cost_price?: number,
+    expiry_date?: Date,
+    pharmacy_id?: number,
+    business_unit_id?: string,
+    formulary_id?: string,
+    ) {
+    // const { business_unit_id, quantity, pharmacy_id, ...productData } = pharmacyProductDto;
 
     try {
+      let pharmacy: Pharmacy;
+      const ability = this.caslAbilityFactory.createForUser(user)
+
+      if (pharmacy_id) {
+        pharmacy = await this.pharmaciesService.getPharmacy(user, pharmacy_id)
+      }
+      
       // Create and save the pharmacy product
-      const pharmacyProduct = this.pharmacyProductRepository.create(productData);
+      const pharmacyProduct = this.pharmacyProductRepository.create({
+        product_name,
+        manufacturer,
+        dosage_form,
+        exists_in_uni_list,
+        quantity_type,
+        nafdac_number,
+        product_code,
+        drug_name,
+        strength,
+        unit,
+        selling_price,
+        cost_price,
+        expiry_date,
+        pharmacy
+      });
+
+      // operation permission
+      if ( pharmacy_id && !ability.can(Action.Create, pharmacyProduct)) {  // works on a user with Role.Pharmacist
+        throw new HttpException("You do not have permissions to create product inventory for a pharmacy that does not belong to you.", HttpStatus.BAD_REQUEST)
+      }
       const savedProduct = await this.pharmacyProductRepository.save(pharmacyProduct);
 
-      const businessUnit = await this.businessUnitsService.findOne(business_unit_id)
       // If business unit ID and quantity are provided, link the product to the business unit
       if (business_unit_id && quantity) {
+        const businessUnit = await this.businessUnitsService.findOne(business_unit_id)
         await this.businessUnitProductsService.create(savedProduct, businessUnit, quantity)
       }
 
@@ -272,14 +324,14 @@ export class PharmacyProductService {
 
 
   async searchPharmacyProductByProductName(pharmacyId: number, searchQuery: string, user: User) {
-    const pharmacy = await this.pharmaciesService.getPharmacy(user, pharmacyId)
-    const pharmacy_id = pharmacy.id
+    await this.pharmaciesService.getPharmacy(user, pharmacyId) //* this is just to check if the user has the permission to search a pharmacy's drug products
+  
     let searchResults = await this.dataSource
       .createQueryBuilder()
       .select("pharmacy_product")
       .from(PharmacyProduct, "pharmacy_product")
-      .where('pharmacy_product.pharmacyId = :pharmacyId', { pharmacy_id })
-      .andWhere("pharmacy_product.product_name ILIKE :searchQuery", { searchQuery: `%${searchQuery}%` })
+      .where('pharmacy_product.pharmacyId = :pharmacyId', { pharmacyId }) 
+      .andWhere("pharmacy_product.product_name ILIKE :searchQuery", { searchQuery: `%${searchQuery}%` }) 
       .getMany();
     
       if (searchResults.length) {

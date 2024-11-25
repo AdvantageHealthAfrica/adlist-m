@@ -7,8 +7,6 @@ import { PharmacyProduct } from './entities/pharmacy.product.entity';
 import { CaslModule } from '../casl/casl.module';
 import { OverallInventoryUpdateTime } from './entities/overall.pharmacy.product.update.time.entity';
 import { BusinessUnitsModule } from '../business-units/business-units.module';
-
-
 // import { StockCount } from '../entities/stock.counts.entity';
 import { PharmacyProductService } from './services/pharmacy.product.service';
 import { PharmacyProductController } from './controllers/pharmacy.product.controller';
@@ -17,6 +15,7 @@ import { PharmaciesController } from './controllers/pharmacies.controller';
 @Module({
   imports: [
     BusinessUnitsModule,
+    CaslModule,
     TypeOrmModule.forFeature([
       Pharmacy, 
       PharmacyProduct, 
