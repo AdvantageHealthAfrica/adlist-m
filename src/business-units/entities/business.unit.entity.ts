@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
-import { ProductBusinessUnit } from './product.business.unit';
+import { BusinessUnitProduct } from './business.unit.product.entity';
 
-@Entity('business_units')
+@Entity()
 export class BusinessUnit {
   @PrimaryGeneratedColumn('uuid')
   bu_id: string;
@@ -18,7 +18,11 @@ export class BusinessUnit {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @OneToMany(() => ProductBusinessUnit, (productBusinessUnit) => productBusinessUnit.businessUnit)
-  productBusinessUnits: ProductBusinessUnit[];
+  // @OneToMany(() => ProductBusinessUnit, (productBusinessUnit) => productBusinessUnit.businessUnit)
+  // productBusinessUnits: ProductBusinessUnit[];
+
+  @OneToMany(() => BusinessUnitProduct, (businessUnitProduct) => businessUnitProduct.businessUnit)
+  businessUnitProducts: BusinessUnitProduct[];
+
   formularies: any;
 }

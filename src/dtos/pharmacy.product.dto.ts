@@ -9,8 +9,8 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { PharmacyProductDosageForm } from '../../enums/pharmacy.product.dosage.form';
-import { QuantityTypes } from '../../enums/product.quantity.types';
+import { PharmacyProductDosageForm } from '../enums/pharmacy.product.dosage.form';
+import { QuantityTypes } from '../enums/product.quantity.types';
 
 export class PharmacyProductDto {
   @ApiPropertyOptional({ description: 'NAFDAC number of the product', example: '12345-67890' })
@@ -92,8 +92,13 @@ export class PharmacyProductDto {
   @Type(() => Date)
   expiry_date?: Date;
 
-  @ApiProperty({ description: 'Business Unit ID', example: 'BU12345' })
-  @IsNotEmpty()
+  @ApiPropertyOptional({ description: 'The pharmacy id', example: 1 })
+  @IsOptional()
+  @IsNumber()
+  pharmacy_id: number
+
+  @ApiPropertyOptional({ description: 'Business Unit ID', example: 'BU12345' })
+  @IsOptional()
   @IsString()
   business_unit_id?: string;
 

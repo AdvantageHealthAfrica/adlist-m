@@ -1,9 +1,20 @@
-import { Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger, NotFoundException, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { PharmacyProduct } from '../entities/pharamcy.product.entity';
-import { ProductBusinessUnit } from '../entities/product.business.unit';
-import { PharmacyProductDto } from '../dtos/pharmacy.product.dto';
+import { PharmacyProduct } from '../entities/pharmacy.product.entity';
+import { BusinessUnitProduct } from '../../business-units/entities/business.unit.product.entity';
+import { PharmacyProductDto } from '../../dtos/pharmacy.product.dto';
+import { BusinessUnitsService } from '../../business-units/services/business-units.service';
+import { BusinessUnitProductsService } from '../../business-units/services/business-unit-products.service';
+import { User } from '../../users/user.entity';
+import { Role } from '../../enums/role.enum';
+import { PharmaciesService } from './pharmacies.service';
+import { DataSource } from 'typeorm';
+import { CaslAbilityFactory } from '../../casl/casl-ability.factory/casl-ability.factory';
+import { PharmacyProductDosageForm } from '../../enums/pharmacy.product.dosage.form';
+import { QuantityTypes } from '../../enums/product.quantity.types';
+import { Pharmacy } from '../entities/pharmacy.entity';
+import { Action } from '../../enums/actions.enums';
 
 @Injectable()
 export class PharmacyProductService {
@@ -12,29 +23,71 @@ export class PharmacyProductService {
   constructor(
     @InjectRepository(PharmacyProduct)
     private readonly pharmacyProductRepository: Repository<PharmacyProduct>,
-    @InjectRepository(ProductBusinessUnit)
-    private readonly productBusinessUnitRepository: Repository<ProductBusinessUnit>,
+    private businessUnitsService: BusinessUnitsService,
+    private businessUnitProductsService: BusinessUnitProductsService,
+    private pharmaciesService: PharmaciesService,
+    private dataSource: DataSource,
+    private caslAbilityFactory: CaslAbilityFactory
   ) {}
 
-  async create(pharmacyProductDto: PharmacyProductDto): Promise<PharmacyProduct> {
-    const { business_unit_id, quantity, ...productData } = pharmacyProductDto;
+  async create(
+    user: User,
+    product_name: string,
+    manufacturer: string,
+    dosage_form: PharmacyProductDosageForm,
+    exists_in_uni_list: boolean,
+    quantity_type: QuantityTypes,
+    nafdac_number?: string,
+    product_code?: string,
+    drug_name?: string,
+    strength?: string,
+    unit?: string,
+    quantity?: number,
+    selling_price?: number,
+    cost_price?: number,
+    expiry_date?: Date,
+    pharmacy_id?: number,
+    business_unit_id?: string,
+    formulary_id?: string,
+    ) {
+    // const { business_unit_id, quantity, pharmacy_id, ...productData } = pharmacyProductDto;
 
     try {
-      // Create and save the pharmacy product
-      const pharmacyProduct = this.pharmacyProductRepository.create(productData);
-      const savedProduct = await this.pharmacyProductRepository.save(pharmacyProduct);
+      let pharmacy: Pharmacy;
+      const ability = this.caslAbilityFactory.createForUser(user)
 
+      if (pharmacy_id) {
+        pharmacy = await this.pharmaciesService.getPharmacy(user, pharmacy_id)
+      }
       
+      // Create and save the pharmacy product
+      const pharmacyProduct = this.pharmacyProductRepository.create({
+        product_name,
+        manufacturer,
+        dosage_form,
+        exists_in_uni_list,
+        quantity_type,
+        nafdac_number,
+        product_code,
+        drug_name,
+        strength,
+        unit,
+        selling_price,
+        cost_price,
+        expiry_date,
+        pharmacy
+      });
+
+      // operation permission
+      if ( pharmacy_id && !ability.can(Action.Create, pharmacyProduct)) {  // works on a user with Role.Pharmacist
+        throw new HttpException("You do not have permissions to create product inventory for a pharmacy that does not belong to you.", HttpStatus.BAD_REQUEST)
+      }
+      const savedProduct = await this.pharmacyProductRepository.save(pharmacyProduct);
 
       // If business unit ID and quantity are provided, link the product to the business unit
       if (business_unit_id && quantity) {
-        const productBusinessUnit = this.productBusinessUnitRepository.create({
-          product: savedProduct,
-          businessUnit: { bu_id: business_unit_id },
-          quantity,
-        });
-
-        await this.productBusinessUnitRepository.save(productBusinessUnit);
+        const businessUnit = await this.businessUnitsService.findOne(business_unit_id)
+        await this.businessUnitProductsService.create(savedProduct, businessUnit, quantity)
       }
 
       return savedProduct;
@@ -67,26 +120,19 @@ export class PharmacyProductService {
 
     const { businessUnitId, quantity, ...productData } = pharmacyProductDto;
 
+    const businessUnit = await this.businessUnitsService.findOne(businessUnitId)
+
     Object.assign(pharmacyProduct, productData);
     const updatedProduct = await this.pharmacyProductRepository.save(pharmacyProduct);
 
     if (businessUnitId && quantity !== undefined) {
-      let productBusinessUnit = await this.productBusinessUnitRepository.findOne({
-        where: { product: { id }, businessUnit: { bu_id: businessUnitId } },
-        relations: ['product', 'business_unit_id'],
-      });
+      let businessUnitProduct = await this.businessUnitProductsService.findOne(id, businessUnitId);
 
-      if (productBusinessUnit) {
-        productBusinessUnit.quantity = quantity;
+      if (businessUnitProduct) {
+        await this.businessUnitProductsService.updateBusinessUnitProductQuantity(id, businessUnitId, quantity);
       } else {
-        productBusinessUnit = this.productBusinessUnitRepository.create({
-          product: updatedProduct,
-          businessUnit: { bu_id: businessUnitId },
-          quantity,
-        });
+        await this.businessUnitProductsService.create(updatedProduct, businessUnit, quantity);
       }
-
-      await this.productBusinessUnitRepository.save(productBusinessUnit);
     }
 
     return updatedProduct;
@@ -129,7 +175,7 @@ export class PharmacyProductService {
 
 
    // Aggregate total stock quantity by business unit
-   async aggregateTotalStockByBusinessUnit(): Promise<any[]> {
+  async aggregateTotalStockByBusinessUnit(): Promise<any[]> {
     try {
       const result = await this.pharmacyProductRepository
         .createQueryBuilder('product')
@@ -274,6 +320,26 @@ export class PharmacyProductService {
       this.logger.error('Error aggregating total quantity and selling price by business unit', error);
       throw error;
     }
+  }
+
+
+  async searchPharmacyProductByProductName(pharmacyId: number, searchQuery: string, user: User) {
+    await this.pharmaciesService.getPharmacy(user, pharmacyId) //* this is just to check if the user has the permission to search a pharmacy's drug products
+  
+    let searchResults = await this.dataSource
+      .createQueryBuilder()
+      .select("pharmacy_product")
+      .from(PharmacyProduct, "pharmacy_product")
+      .where('pharmacy_product.pharmacyId = :pharmacyId', { pharmacyId }) 
+      .andWhere("pharmacy_product.product_name ILIKE :searchQuery", { searchQuery: `%${searchQuery}%` }) 
+      .getMany();
+    
+      if (searchResults.length) {
+        return searchResults
+      }
+      return {
+        "message": "No results found."
+      }
   }
 
 }

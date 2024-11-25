@@ -1,29 +1,29 @@
 import {
-    Controller,
-    Get,
-    Post,
-    Body,
-    Param,
-    Put,
-    Delete,
-    UploadedFile,
-    UseInterceptors,
-    BadRequestException,
-    Query,
-  } from '@nestjs/common';
-  import { FileInterceptor } from '@nestjs/platform-express';
-  import { diskStorage } from 'multer';
-  import * as path from 'path';
-  import { CreateFormularyDto } from '../dtos/create-formulary.dto';
-  import { UpdateFormularyDto } from '../dtos/update-formulary.dto';
-  import { Formulary } from '../entities/formularies.entity';
-  import { FormularyService } from '../services/formulary.service';
-  import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiConsumes, ApiQuery } from '@nestjs/swagger';
-  
-  @ApiTags('Formularies')
-  @Controller('formularies')
-  export class FormularyController {
-    constructor(private readonly formularyService: FormularyService) {}
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
+  UploadedFile,
+  UseInterceptors,
+  BadRequestException,
+  Query,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import * as path from 'path';
+import { CreateFormularyDto } from '../dtos/create-formulary.dto';
+import { UpdateFormularyDto } from '../dtos/update-formulary.dto';
+import { Formulary } from './formulary.entity';
+import { FormulariesService } from './formularies.service';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiConsumes, ApiQuery } from '@nestjs/swagger';
+
+@ApiTags('Formularies')
+@Controller('formularies')
+export class FormulariesController {
+  constructor(private readonly formulariesService: FormulariesService) {}
   
     // Create a new formulary
     @Post()
@@ -31,7 +31,7 @@ import {
     @ApiResponse({ status: 201, description: 'Formulary created successfully.', type: Formulary })
     @ApiResponse({ status: 400, description: 'Bad Request' })
     async create(@Body() createFormularyDto: CreateFormularyDto): Promise<Formulary> {
-      return this.formularyService.create(createFormularyDto);
+      return this.formulariesService.create(createFormularyDto);
     }
   
     // Get all formularies
@@ -39,7 +39,7 @@ import {
     @ApiOperation({ summary: 'Retrieve all formularies' })
     @ApiResponse({ status: 200, description: 'List of all formularies.', type: [Formulary] })
     async findAll(): Promise<Formulary[]> {
-      return this.formularyService.findAll();
+      return this.formulariesService.findAll();
     }
   
     // Get a single formulary by ID
@@ -48,7 +48,7 @@ import {
     @ApiResponse({ status: 200, description: 'Formulary found.', type: Formulary })
     @ApiResponse({ status: 404, description: 'Formulary not found' })
     async findOne(@Param('id') id: string): Promise<Formulary> {
-      return this.formularyService.findOne(id);
+      return this.formulariesService.findOne(id);
     }
 
     @Get(':id/formulary')
@@ -60,7 +60,7 @@ import {
     })
     @ApiResponse({ status: 404, description: 'Business unit or formulary not found' })
     async getFormularyByBusinessUnitId(@Param('id') businessUnitId: string): Promise<Formulary[]> {
-      return this.formularyService.findByBusinessUnitId(businessUnitId);
+      return this.formulariesService.findByBusinessUnitId(businessUnitId);
   }
   
     // Update a formulary
@@ -73,7 +73,7 @@ import {
       @Param('id') id: string,
       @Body() updateFormularyDto: UpdateFormularyDto,
     ): Promise<Formulary> {
-      return this.formularyService.update(id, updateFormularyDto);
+      return this.formulariesService.update(id, updateFormularyDto);
     }
   
     // Delete a formulary
@@ -82,7 +82,7 @@ import {
     @ApiResponse({ status: 204, description: 'Formulary deleted successfully.' })
     @ApiResponse({ status: 404, description: 'Formulary not found' })
     async remove(@Param('id') id: string): Promise<void> {
-      return this.formularyService.remove(id);
+      return this.formulariesService.remove(id);
     }
 
     @Get('search')
@@ -97,7 +97,7 @@ import {
         throw new BadRequestException('Query parameter is required');
       }
   
-      return this.formularyService.search(query);
+      return this.formulariesService.search(query);
     }
   
     // Upload CSV to create formularies in bulk
@@ -127,7 +127,6 @@ import {
         throw new BadRequestException('File is required');
       }
   
-      return this.formularyService.importFromCSV(file.path);
+      return this.formulariesService.importFromCSV(file.path);
     }
-  }
-  
+}

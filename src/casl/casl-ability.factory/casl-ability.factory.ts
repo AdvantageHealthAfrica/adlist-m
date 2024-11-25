@@ -1,6 +1,6 @@
 import { User } from "../../users/user.entity";
 import { Pharmacy } from "../../pharmacies/entities/pharmacy.entity";
-import { PharmacyProduct } from "../../pharmacies/entities/pharamcy.product.entity";
+import { PharmacyProduct } from "../../pharmacies/entities/pharmacy.product.entity";
 import { InferSubjects, createMongoAbility, MongoQuery, MongoAbility,  AbilityBuilder, ExtractSubjectType } from '@casl/ability'
 import { Action } from "../../enums/actions.enums";
 import { Role } from "../../enums/role.enum";

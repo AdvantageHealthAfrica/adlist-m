@@ -9,8 +9,9 @@ import {
 import { Pharmacy } from './pharmacy.entity';
 import { PharmacyProductDosageForm } from '../../enums/pharmacy.product.dosage.form';
 import { QuantityTypes } from '../../enums/product.quantity.types';
-import { Formulary } from './formularies.entity';
-import { BusinessUnit } from './business.unit.entity';
+import { Formulary } from '../../formularies/formulary.entity';
+import { BusinessUnit } from '../../business-units/entities/business.unit.entity';
+
 
 @Entity('pharmacy_product')
 export class PharmacyProduct {
