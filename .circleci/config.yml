@@ -1,0 +1,44 @@
+version: 2.1
+
+
+jobs:
+  build-and-push-to-ecr:
+    docker:
+      - image: cimg/node:18.7.0
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y awscli
+      - when:
+          condition:
+            equal: [ staging, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Login to AWS ECR
+                command: |
+                  aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.us-west-2.amazonaws.com
+            - run:
+                name: Build Docker image
+                command: |
+                  docker build -t aha-adlist-api-m .
+            - run:
+                name: Tag Docker image
+                command: |
+                  docker tag aha-adlist-api-m:latest $AWS_ACCOUNT_ID.dkr.ecr.us-west-2.amazonaws.com/aha-adlist-api-m
+            - run:
+                name: Push Docker image to ECR
+                command: |
+                  docker push $AWS_ACCOUNT_ID.dkr.ecr.us-west-2.amazonaws.com/aha-adlist-api-m:latest
+
+
+
+workflows:
+  build-and-push-workflow: 
+    jobs:
+      - build-and-push-to-ecr:
+          context: AWS_ENVIRONMENT
