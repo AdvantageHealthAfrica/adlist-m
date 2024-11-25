@@ -1,14 +1,14 @@
 import { Controller, Get, Post, Body, Param, Put, Delete, Query } from '@nestjs/common';
 import { ApiTags, ApiQuery, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { BusinessUnitService } from '../services/business.unit.service';
+import { BusinessUnitsService } from './services/business-units.service';
 import { BusinessUnitDto } from '../dtos/business.unit.dto';
 import { CreateBusinessUnitDto } from '../dtos/create.business.unit.dto';
 import { UpdateBusinessUnitDto } from '../dtos/update.business.unit.dto';
 
-@ApiTags('business-units')
+@ApiTags('Business-units')
 @Controller('business-units')
-export class BusinessUnitController {
-  constructor(private readonly businessUnitService: BusinessUnitService) {}
+export class BusinessUnitsController {
+  constructor(private readonly businessUnitsService: BusinessUnitsService) {}
 
   // Create a new business unit
   @Post()
@@ -19,7 +19,7 @@ export class BusinessUnitController {
     type: BusinessUnitDto,
   })
   async create(@Body() createBusinessUnitDto: CreateBusinessUnitDto): Promise<BusinessUnitDto> {
-    return this.businessUnitService.create(createBusinessUnitDto.name, createBusinessUnitDto.location);
+    return this.businessUnitsService.create(createBusinessUnitDto.name, createBusinessUnitDto.location);
   }
 
   // Get all business units
@@ -31,7 +31,7 @@ export class BusinessUnitController {
     type: [BusinessUnitDto],
   })
   async findAll(): Promise<BusinessUnitDto[]> {
-    return this.businessUnitService.findAll();
+    return this.businessUnitsService.findAll();
   }
 
   // Get a single business unit by ID
@@ -44,7 +44,7 @@ export class BusinessUnitController {
   })
   @ApiResponse({ status: 404, description: 'Business unit not found' })
   async findOne(@Param('id') id: string): Promise<BusinessUnitDto> {
-    return this.businessUnitService.findOne(id);
+    return this.businessUnitsService.findOne(id);
   }
 
   // Update a business unit
@@ -60,7 +60,7 @@ export class BusinessUnitController {
     @Param('id') id: string,
     @Body() updateBusinessUnitDto: UpdateBusinessUnitDto,
   ): Promise<BusinessUnitDto> {
-    return this.businessUnitService.update(id, updateBusinessUnitDto.name, updateBusinessUnitDto.location);
+    return this.businessUnitsService.update(id, updateBusinessUnitDto.name, updateBusinessUnitDto.location);
   }
 
   // Delete a business unit
@@ -69,7 +69,7 @@ export class BusinessUnitController {
   @ApiResponse({ status: 200, description: 'Business unit successfully deleted' })
   @ApiResponse({ status: 404, description: 'Business unit not found' })
   async remove(@Param('id') id: string): Promise<void> {
-    return this.businessUnitService.remove(id);
+    return this.businessUnitsService.remove(id);
   }
 
   // Search business units
@@ -87,6 +87,6 @@ export class BusinessUnitController {
     type: [BusinessUnitDto],
   })
   async search(@Query('query') query: string): Promise<BusinessUnitDto[]> {
-    return this.businessUnitService.search(query);
+    return this.businessUnitsService.search(query);
   }
 }

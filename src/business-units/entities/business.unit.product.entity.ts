@@ -1,9 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn, Column } from 'typeorm';
 import { BusinessUnit } from './business.unit.entity';
-import { PharmacyProduct } from './pharamcy.product.entity';
+import { PharmacyProduct } from '../../pharmacies/entities/pharmacy.product.entity';
 
-@Entity('product_business_unit')
-export class ProductBusinessUnit {
+@Entity()
+export class BusinessUnitProduct {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -11,7 +11,7 @@ export class ProductBusinessUnit {
   @JoinColumn({ name: 'product_id' })
   product: PharmacyProduct;
 
-  @ManyToOne(() => BusinessUnit, (businessUnit) => businessUnit.productBusinessUnits)
+  @ManyToOne(() => BusinessUnit, (businessUnit) => businessUnit.businessUnitProducts)
   @JoinColumn({ name: 'bu_id' })
   businessUnit: BusinessUnit;
 

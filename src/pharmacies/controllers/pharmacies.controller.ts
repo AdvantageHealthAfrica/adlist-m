@@ -22,8 +22,8 @@ import { Role } from 'src/enums/role.enum';
 import { TimeLapses } from 'src/enums/time.lapses';
 import { Roles } from 'src/utils/roles.decorator';
 import { PharmaciesService } from '../services/pharmacies.service';
-@Controller('pharmacies')
 @ApiTags("Pharmacies and Inventories")
+@Controller('pharmacies')
 export class PharmaciesController {
   constructor(private pharmService: PharmaciesService) { }
   

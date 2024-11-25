@@ -1,8 +1,11 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, Query, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, Query, HttpException, HttpStatus, UseGuards, Request } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { PharmacyProductService } from '../services/pharmacy.product.service';
-import { PharmacyProduct } from '../entities/pharamcy.product.entity';
-import { PharmacyProductDto } from '../dtos/pharmacy.product.dto';
+import { PharmacyProduct } from '../entities/pharmacy.product.entity';
+import { PharmacyProductDto } from '../../dtos/pharmacy.product.dto';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/guards/roles.guards';
+import { Role } from 'src/enums/role.enum';
 
 
 @ApiTags('Pharmacy products')
@@ -10,10 +13,31 @@ import { PharmacyProductDto } from '../dtos/pharmacy.product.dto';
 export class PharmacyProductController {
   constructor(private readonly pharmacyProductService: PharmacyProductService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   @ApiOperation({ summary: 'Create a new pharmacy product' })
-  async create(@Body() pharmacyProductDto: PharmacyProductDto): Promise<PharmacyProduct> {
-    return this.pharmacyProductService.create(pharmacyProductDto);
+  async create(@Body() body: PharmacyProductDto, @Request() request): Promise<PharmacyProduct> {
+    const user = request.user
+    return this.pharmacyProductService.create(
+      user,
+      body.product_name,
+      body.manufacturer,
+      body.dosage_form,
+      body.exists_in_uni_list,
+      body.quantity_type,
+      body.nafdac_number,
+      body.product_code,
+      body.drug_name,
+      body.strength,
+      body.unit,
+      body.quantity,
+      body.selling_price,
+      body.cost_price,
+      body.expiry_date,
+      body.pharmacy_id,
+      body.business_unit_id,
+      body.formulary_id
+    );
   }
 
   @Get()
@@ -207,5 +231,13 @@ export class PharmacyProductController {
     } catch (error) {
       throw new HttpException('Failed to aggregate total quantity and selling price', HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+
+  @UseGuards(JwtAuthGuard)
+  @Get('search/:pharmacy_id')
+  async searchPharmacyProductByProductName(@Param('pharmacy_id') pharmacyId: number, @Query('product_name') product_name: string, @Request() request) {
+    const user = request.user
+    return await this.pharmacyProductService.searchPharmacyProductByProductName(pharmacyId, product_name, user)
   }
 }

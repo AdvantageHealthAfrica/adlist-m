@@ -7,7 +7,7 @@ import {
   ManyToOne,
 } from 'typeorm';
 import { User } from '../../users/user.entity';
-import { PharmacyProduct } from './pharamcy.product.entity';
+import { PharmacyProduct } from './pharmacy.product.entity';
 
 @Entity()
 export class Pharmacy {

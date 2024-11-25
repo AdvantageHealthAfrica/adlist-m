@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
-import { BusinessUnit } from '../entities/business.unit.entity'; 
+import { BusinessUnit } from '../entities/business.unit.entity';
 
 @Injectable()
-export class BusinessUnitService {
+export class BusinessUnitsService {
   constructor(
     @InjectRepository(BusinessUnit)
     private readonly businessUnitRepository: Repository<BusinessUnit>,
