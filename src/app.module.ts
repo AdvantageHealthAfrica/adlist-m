@@ -41,7 +41,7 @@ import { FormulariesModule } from './formularies/formularies.module';
         ),
         autoLoadEntities: true,
         synchronize: true,
-        ssl: process.env.NODE_ENV == "production" ?  { rejectUnauthorized: false }: false, // Disable SSL verification for staging environment. if environment is not that of staging disable ssl connection
+        ssl: process.env.NODE_ENV == "staging" ?  { rejectUnauthorized: false }: false, // Disable SSL verification for staging environment. if environment is not that of staging disable ssl connection
         extra: {
           sslOptions: 'no-verify', // or 'verify-full' for certificate verification
         },
