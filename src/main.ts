@@ -32,7 +32,7 @@ async function bootstrap() {
   //   credentials: true, // credentials will be accessed
   // });
 
-  app.enableCors({origin: ["http://localhost:3000", "http://127.0.0.1:3000", "https://stock-taking-tool-frontend.vercel.app"]});
+  app.enableCors({origin: ["http://localhost:3000", "http://127.0.0.1:3000", "https://stock-taking-tool-frontend.vercel.app", "https://adlist-frontend.vercel.app"]});
 
   // apps should use pipes
   app.useGlobalPipes(
