@@ -24,7 +24,6 @@ export class PharmacyProduct {
   @Column()
   product_name: string;
 
-  // set to nullable as a result of creating new product with nafdac number or bar code
   @Column({ nullable: true })
   product_code: string;
 
@@ -33,6 +32,9 @@ export class PharmacyProduct {
 
   @Column()
   manufacturer: string;
+
+  @Column({ nullable: true })
+  sku: string;
 
   @Column({ nullable: true })
   strength: string;
@@ -86,8 +88,7 @@ export class PharmacyProduct {
 
   @UpdateDateColumn({ type: 'timestamptz', default: () => 'now()' })
   last_edited_at: Date;
-
-
+  
   @ManyToOne(() => BusinessUnit, (businessUnit) => businessUnit.bu_id)
   @JoinColumn({ name: 'business_unit_id' })
   business_unit_id: BusinessUnit;

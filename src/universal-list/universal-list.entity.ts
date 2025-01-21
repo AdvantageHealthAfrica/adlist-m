@@ -3,8 +3,8 @@ import { PharmacyProductDosageForm } from '../enums/pharmacy.product.dosage.form
 
 @Entity()
 export class UniversalList{
-  // @PrimaryGeneratedColumn()
-  // id: number
+  @PrimaryGeneratedColumn()
+  id: number
 
   @PrimaryColumn()
   nafdac_number: string
